@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FLAI — Rap Independente do Cerrado</title>
+  <meta name="description" content="Flai é rapper independente de Goiás. Trap, boombap, emo trap, rock alternativo e funk. Estética melancólica e agressiva." />
+  <meta name="author" content="Flai" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://7lai.net" />
+  <meta property="og:title" content="FLAI" />
+  <meta property="og:description" content="Rapper independente de Goiás. Trap, boombap, emo trap, rock alternativo e funk." />
+  <meta property="og:url" content="https://7lai.net" />
+  <meta property="og:type" content="music.musician" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "MusicGroup",
+    "name": "Flai",
+    "url": "https://7lai.net",
+    "genre": ["Trap", "Boom Bap", "Emo Trap", "Alternative Rock", "Funk"],
+    "foundingLocation": { "@type": "Place", "name": "Goiás, Brasil" },
+    "description": "Rapper independente de Goiás. Trap, boombap, emo trap, rock alternativo e funk. Estética melancólica e agressiva.",
+    "sameAs": [
+      "https://open.spotify.com/artist/1swFoLGrNnutFoocNksc8A",
+      "https://soundcloud.com/flai_i",
+      "https://youtube.com/@flai_i",
+      "https://www.instagram.com/flai_io",
+      "https://www.tiktok.com/@flai_i",
+      "https://music.amazon.com.br/artists/B0GVTBZLJC"
+    ]
+  }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #080808;
+      --surface: #0f0f0f;
+      --red: #b01010;
+      --red-dim: #6e0a0a;
+      --white: #d9d2c5;
+      --muted: #5a5047;
+      --border: #1e1a16;
+      --atmosphere-transition: 3s;
+    }
+
+    body.weather-rain  { --bg:#050810; --red:#8a1515; --white:#c5c8d9; --muted:#404858; }
+    body.weather-hot   { --bg:#0d0805; --red:#c42010; --white:#e8d5b0; --muted:#6b5030; }
+    body.weather-storm { --bg:#030508; --red:#7a0a0a; --white:#aab0c5; --muted:#353d50; }
+    body.time-night    { --bg:#040408; --red:#990e0e; --muted:#3d3545; }
+    body.time-dawn     { --bg:#0a0608; --red:#b03020; --white:#d5c8c5; }
+
+    body.madrugada {
+      --bg: #020204;
+      --red: #6a0808;
+      --white: #9090a0;
+      --muted: #2a2535;
+    }
+    body.madrugada .hero-name {
+      animation: fadeUp 0.8s forwards 0.4s, glitchSlow 12s infinite 3s !important;
+    }
+    body.madrugada .hero-sub {
+      opacity: 0.35 !important;
+      font-size: 0.8rem !important;
+    }
+    body.madrugada .clock {
+      animation: clockPulse 2s ease-in-out infinite;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; cursor: none !important; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'Share Tech Mono', monospace;
+      overflow-x: hidden;
+      transition: background var(--atmosphere-transition), color var(--atmosphere-transition);
+    }
+
+    /* GRAIN */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.04;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* SCANLINES */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(to bottom, transparent 0px, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
+      pointer-events: none;
+      z-index: 9998;
+    }
+
+    /* CURSOR */
+    #cursor {
+      position: fixed;
+      width: 8px; height: 8px;
+      background: var(--red);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99999;
+      transform: translate(-50%, -50%);
+      transition: background var(--atmosphere-transition), width 0.08s, height 0.08s;
+      mix-blend-mode: screen;
+    }
+
+    #cursor-trail {
+      position: fixed;
+      width: 2px; height: 2px;
+      background: var(--red);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99998;
+      transform: translate(-50%, -50%);
+      opacity: 0.25;
+      transition: left 0.1s ease, top 0.1s ease, background var(--atmosphere-transition);
+    }
+
+    /* IDLE MSG */
+    #idle-msg {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: clamp(0.55rem, 1.2vw, 0.75rem);
+      color: var(--red);
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 9997;
+      transition: opacity 1.5s, color var(--atmosphere-transition);
+    }
+    #idle-msg.show { opacity: 0.55; animation: idlePulse 3s ease-in-out infinite; }
+
+    /* GLITCH OVERLAY */
+    #glitch-overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9996;
+      opacity: 0;
+    }
+    #glitch-overlay.active {
+      animation: screenGlitch 0.14s steps(1) forwards;
+    }
+
+    /* HUD */
+    .hud {
+      position: fixed;
+      top: 1.5rem; right: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.3rem;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .clock {
+      font-size: 0.65rem;
+      color: var(--red);
+      letter-spacing: 0.15em;
+      opacity: 0.7;
+      transition: color var(--atmosphere-transition);
+    }
+
+    .weather-display {
+      font-size: 0.55rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0;
+      transition: opacity 1s, color var(--atmosphere-transition);
+    }
+    .weather-display.loaded { opacity: 0.6; }
+
+    .location-display {
+      font-size: 0.5rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0;
+      transition: opacity 1s;
+    }
+    .location-display.loaded { opacity: 0.4; }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 0 clamp(1.5rem, 8vw, 8rem);
+      position: relative;
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .hero-bg-text {
+      position: absolute;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(18vw, 28vw, 36vw);
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(176,16,16,0.08);
+      top: 50%; right: -4vw;
+      transform: translateY(-50%);
+      line-height: 1;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .madrugada-phrase {
+      position: absolute;
+      top: 2rem;
+      left: clamp(1.5rem, 8vw, 8rem);
+      font-size: 0.5rem;
+      color: var(--red);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      opacity: 0;
+      transition: opacity 3s;
+    }
+    body.madrugada .madrugada-phrase { opacity: 0.4; }
+
+    .hero-tag {
+      font-size: 0.65rem;
+      color: var(--red);
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin-bottom: 1.2rem;
+      opacity: 0;
+      animation: fadeUp 0.8s forwards 0.2s;
+      transition: color var(--atmosphere-transition);
+    }
+    body.is-goias .hero-tag::after { content: ' — território'; color: var(--muted); }
+
+    .hero-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(5rem, 18vw, 18rem);
+      line-height: 0.88;
+      color: var(--white);
+      opacity: 0;
+      animation: fadeUp 0.8s forwards 0.4s, glitchLoop 8s infinite 2s;
+      transition: color var(--atmosphere-transition);
+    }
+
+    .hero-sub {
+      margin-top: 1.5rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 300;
+      font-size: clamp(0.85rem, 1.6vw, 1.1rem);
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      max-width: 36ch;
+      line-height: 1.6;
+      opacity: 0;
+      animation: fadeUp 0.8s forwards 0.7s;
+      transition: color var(--atmosphere-transition), opacity 2s, font-size 2s;
+    }
+
+    .atmo-msg {
+      position: absolute;
+      bottom: 2rem;
+      left: clamp(1.5rem, 8vw, 8rem);
+      font-size: 0.5rem;
+      color: var(--muted);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      opacity: 0;
+      transition: opacity 2s, color var(--atmosphere-transition);
+    }
+    .atmo-msg.show { opacity: 0.5; }
+
+    .hero-line {
+      position: absolute;
+      bottom: 0;
+      left: clamp(1.5rem, 8vw, 8rem);
+      width: 1px; height: 60px;
+      background: linear-gradient(to bottom, var(--red), transparent);
+      animation: fadeIn 1s forwards 1.2s;
+      opacity: 0;
+    }
+
+    section {
+      padding: clamp(4rem, 10vw, 8rem) clamp(1.5rem, 8vw, 8rem);
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+
+    .section-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 3rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: color var(--atmosphere-transition);
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    .bio-text {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 400;
+      font-size: clamp(1.4rem, 3.5vw, 2.8rem);
+      line-height: 1.35;
+      color: var(--white);
+      max-width: 22ch;
+      transition: color var(--atmosphere-transition);
+    }
+    .bio-accent { color: var(--red); transition: color var(--atmosphere-transition); }
+
+    .bio-tags { margin-top: 2.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+    .tag {
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      border: 1px solid var(--muted);
+      color: var(--muted);
+      padding: 0.35rem 0.8rem;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .tag:hover { border-color: var(--red); color: var(--red); }
+
+    .music-embed {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      position: relative;
+    }
+    .music-embed::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px; height: 100%;
+      background: var(--red);
+    }
+    .music-embed iframe { display: block; width: 100%; border: none; }
+
+    .links-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .link-item {
+      background: var(--bg);
+      padding: 1.4rem 1.8rem;
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      transition: background 0.15s, color 0.15s;
+      position: relative;
+      overflow: hidden;
+    }
+    .link-item::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 0; height: 2px;
+      background: var(--red);
+      transition: width 0.25s;
+    }
+    .link-item:hover { background: #110e0e; color: var(--white); }
+    .link-item:hover::before { width: 100%; }
+
+    .link-icon { width: 20px; height: 20px; flex-shrink: 0; opacity: 0.5; transition: opacity 0.15s; }
+    .link-item:hover .link-icon { opacity: 1; }
+
+    footer {
+      padding: 2.5rem clamp(1.5rem, 8vw, 8rem);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .footer-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: 0.1em; color: var(--red-dim); }
+    .footer-copy { font-size: 0.6rem; letter-spacing: 0.2em; color: var(--muted); text-transform: uppercase; }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeIn { to { opacity:1; } }
+
+    @keyframes glitchLoop {
+      0%,92%,100% { text-shadow:none; transform:none; }
+      93% { text-shadow:-3px 0 var(--red); transform:translateX(2px); }
+      94% { text-shadow:3px 0 #0ff; transform:translateX(-2px); }
+      95% { text-shadow:none; transform:none; }
+      97% { text-shadow:-2px 0 var(--red); transform:translateX(1px); }
+      98% { text-shadow:none; transform:none; }
+    }
+
+    @keyframes glitchSlow {
+      0%,96%,100% { text-shadow:none; transform:none; }
+      97% { text-shadow:-4px 0 var(--red); transform:translateX(3px); opacity:0.8; }
+      98% { text-shadow:4px 0 #0ff; transform:translateX(-3px); }
+      99% { text-shadow:none; transform:none; opacity:1; }
+    }
+
+    @keyframes idlePulse { 0%,100% { opacity:0.25; } 50% { opacity:0.65; } }
+
+    @keyframes clockPulse { 0%,100% { opacity:0.3; } 50% { opacity:0.9; } }
+
+    @keyframes screenGlitch {
+      0%   { opacity:1; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(176,16,16,.05) 2px,rgba(176,16,16,.05) 4px); transform:translateX(3px); }
+      33%  { background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,255,255,.03) 3px,rgba(0,255,255,.03) 6px); transform:translateX(-2px); }
+      66%  { background:repeating-linear-gradient(0deg,rgba(176,16,16,.04),rgba(176,16,16,.04) 1px,transparent 1px,transparent 4px); transform:translateX(1px); }
+      100% { opacity:0; transform:none; }
+    }
+
+    body.weather-rain .hero-name,
+    body.weather-storm .hero-name {
+      animation: fadeUp 0.8s forwards 0.4s, glitchLoop 4s infinite 2s;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="cursor"></div>
+  <div id="cursor-trail"></div>
+  <div id="glitch-overlay"></div>
+  <div id="idle-msg"></div>
+
+  <div class="hud">
+    <div class="clock" id="clock"></div>
+    <div class="weather-display" id="weather-display"></div>
+    <div class="location-display" id="location-display"></div>
+  </div>
+
+  <section class="hero">
+    <div class="hero-bg-text" aria-hidden="true">FLAI</div>
+    <p class="madrugada-phrase" id="madrugada-phrase"></p>
+    <p class="hero-tag">// Goiânia, Brasil</p>
+    <h1 class="hero-name">FLAI</h1>
+    <p class="hero-sub">Melancolia e agressividade.<br>Rap independente do cerrado.</p>
+    <p class="atmo-msg" id="atmo-msg"></p>
+    <div class="hero-line"></div>
+  </section>
+
+  <section id="sobre">
+    <div class="section-label">01 — sobre</div>
+    <p class="bio-text">
+      Rapper goiano independente.<br>
+      Vibe <span class="bio-accent">melancólica e agressiva</span><br>
+      em estilos que não pedem licença.
+    </p>
+    <div class="bio-tags">
+      <span class="tag">Boombap</span>
+      <span class="tag">Trap</span>
+      <span class="tag">Emo Trap</span>
+      <span class="tag">Rock Alt</span>
+      <span class="tag">Funk</span>
+      <span class="tag">Independente</span>
+    </div>
+  </section>
+
+  <section id="musica">
+    <div class="section-label">02 — música</div>
+    <div class="music-embed">
+      <iframe
+        src="https://open.spotify.com/embed/artist/1swFoLGrNnutFoocNksc8A?utm_source=generator&theme=0"
+        width="100%" height="352"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        allowtransparency="true"
+      ></iframe>
+    </div>
+  </section>
+
+  <section id="links">
+    <div class="section-label">03 — plataformas & redes</div>
+    <div class="links-grid">
+
+      <a class="link-item" href="https://open.spotify.com/artist/1swFoLGrNnutFoocNksc8A" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.518 17.31c-.213.35-.667.46-1.016.247-2.782-1.7-6.284-2.084-10.41-1.141-.397.09-.794-.158-.884-.555-.09-.397.158-.794.555-.884 4.515-1.031 8.39-.587 11.508 1.317.35.213.46.667.247 1.016zm1.474-3.28c-.267.434-.835.57-1.269.302-3.184-1.957-8.04-2.524-11.81-1.381-.49.148-.997-.13-1.146-.62-.148-.49.13-.997.62-1.146 4.309-1.309 9.67-.673 13.303 1.576.434.267.57.835.302 1.269zm.127-3.412c-3.818-2.268-10.122-2.478-13.773-1.37-.587.178-1.207-.152-1.385-.74-.178-.587.152-1.207.74-1.385 4.192-1.272 11.16-1.026 15.564 1.585.528.313.702 1 .388 1.527-.313.528-1 .702-1.527.388l-.007-.005z"/></svg>
+        Spotify
+      </a>
+
+      <a class="link-item" href="https://music.amazon.com.br/artists/B0GVTBZLJC" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M13.958 10.09c0 1.232.029 2.256-.591 3.351-.502.891-1.301 1.438-2.186 1.438-1.214 0-1.922-.924-1.922-2.292 0-2.692 2.415-3.182 4.7-3.182v.685zm3.186 7.705c-.209.189-.512.201-.745.076-1.045-.869-1.233-1.272-1.808-2.099-1.729 1.765-2.954 2.294-5.196 2.294-2.654 0-4.717-1.638-4.717-4.915 0-2.56 1.385-4.304 3.358-5.155 1.71-.754 4.098-.887 5.925-1.096v-.41c0-.753.06-1.642-.385-2.294-.385-.581-1.134-.822-1.789-.822-1.215 0-2.294.626-2.56 1.923-.054.285-.266.566-.549.579l-3.064-.331c-.258-.056-.548-.266-.472-.661.706-3.71 4.056-4.828 7.059-4.828 1.535 0 3.542.409 4.754 1.57 1.535 1.434 1.388 3.346 1.388 5.427v4.914c0 1.477.612 2.126 1.188 2.924.205.285.249.626-.012.835-.641.535-1.783 1.528-2.408 2.084l-.007-.016z"/></svg>
+        Amazon Music
+      </a>
+
+      <a class="link-item" href="https://soundcloud.com/flai_i" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M1.175 12.225c-.015 0-.024.008-.027.022l-.314 2.013.314 1.992c.003.013.012.02.027.02.013 0 .022-.008.025-.02l.357-1.992-.357-2.013c-.003-.014-.012-.022-.025-.022zm.902-.474c-.02 0-.033.012-.037.031l-.268 2.456.268 2.426c.004.018.018.03.037.03.018 0 .032-.012.035-.03l.307-2.426-.307-2.456c-.003-.019-.017-.031-.035-.031zm11.735-5.983c-.053 0-.098.044-.102.098l-.017 6.636.017 3.472c.004.053.049.098.102.098.053 0 .098-.045.101-.098l.019-3.472-.019-6.636c-.003-.054-.048-.098-.101-.098zm3.78 1.56c-.068 0-.124.058-.128.127l-.017 4.047.017 3.582c.004.068.06.127.128.127.067 0 .123-.059.127-.127l.019-3.582-.019-4.047c-.004-.069-.06-.127-.127-.127zm-1.896-.797c-.061 0-.112.052-.116.114l-.017 4.967.017 3.533c.004.062.055.114.116.114.06 0 .111-.052.115-.114l.019-3.533-.019-4.967c-.004-.062-.055-.114-.115-.114zm-1.89.428c-.057 0-.105.049-.109.107l-.017 5.535.017 3.508c.004.058.052.107.109.107.056 0 .104-.049.108-.107l.019-3.508-.019-5.535c-.004-.058-.052-.107-.108-.107zm5.669 2.965c-.521 0-1.014.135-1.44.373l-.005-.238c0-.033-.147-.065-.305-.1-.287 0-.553.088-.774.24-.165-1.862-1.724-3.314-3.617-3.314-.491 0-.965.106-1.381.297v8.252h9.104c.966-.008 1.748-.795 1.748-1.764 0-.97-.782-1.756-1.748-1.764-.075 0-.148.005-.22.015-.04-1.638-1.37-2.962-3.014-2.962z"/></svg>
+        SoundCloud
+      </a>
+
+      <a class="link-item" href="https://youtube.com/@flai_i" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        YouTube
+      </a>
+
+      <a class="link-item" href="https://www.instagram.com/flai_io" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        Instagram
+      </a>
+
+      <a class="link-item" href="https://www.tiktok.com/@flai_i" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+        TikTok
+      </a>
+
+    </div>
+  </section>
+
+  <footer>
+    <span class="footer-name">FLAI</span>
+    <span class="footer-copy">© 2026 — todos os direitos reservados</span>
+  </footer>
+
+  <script>
+    // ── RELÓGIO ──
+    function tick() {
+      const n = new Date();
+      document.getElementById('clock').textContent =
+        `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}:${String(n.getSeconds()).padStart(2,'0')}`;
+    }
+    tick(); setInterval(tick, 1000);
+
+    // ── MADRUGADA ──
+    const madPhrases = [
+      'ninguém dorme igual.',
+      'a cidade some depois da meia-noite.',
+      'silêncio pesado aqui.',
+      'só a luz do celular.',
+      'goiânia de madrugada é outra coisa.',
+      'você não deveria estar aqui.',
+    ];
+
+    function applyTime() {
+      const h = new Date().getHours();
+      if (h >= 0 && h < 5) {
+        document.body.classList.add('madrugada', 'time-night');
+        document.getElementById('madrugada-phrase').textContent =
+          '// ' + madPhrases[Math.floor(Math.random() * madPhrases.length)];
+      } else if (h >= 5 && h < 7) {
+        document.body.classList.add('time-dawn');
+      }
+    }
+    applyTime();
+
+    // ── CURSOR ──
+    const cur = document.getElementById('cursor');
+    const trail = document.getElementById('cursor-trail');
+    let mx = -100, my = -100;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cur.style.left = mx + 'px'; cur.style.top = my + 'px';
+      setTimeout(() => { trail.style.left = mx + 'px'; trail.style.top = my + 'px'; }, 90);
+    });
+
+    document.addEventListener('mousedown', () => { cur.style.width = '4px'; cur.style.height = '4px'; });
+    document.addEventListener('mouseup',   () => { cur.style.width = '8px'; cur.style.height = '8px'; });
+
+    // ── GLITCH ALEATÓRIO ──
+    const glitchEl = document.getElementById('glitch-overlay');
+    function triggerGlitch() {
+      glitchEl.classList.remove('active');
+      void glitchEl.offsetWidth;
+      glitchEl.classList.add('active');
+      setTimeout(() => glitchEl.classList.remove('active'), 200);
+    }
+
+    function scheduleGlitch() {
+      const isMad = document.body.classList.contains('madrugada');
+      const delay = isMad ? (8000 + Math.random() * 20000) : (20000 + Math.random() * 70000);
+      setTimeout(() => {
+        triggerGlitch();
+        if (Math.random() > 0.55) setTimeout(triggerGlitch, 200 + Math.random() * 250);
+        scheduleGlitch();
+      }, delay);
+    }
+    scheduleGlitch();
+
+    // ── IDLE ──
+    const idlePool = [
+      'ainda aqui?', 'você ainda está aí.', 'o site percebeu.',
+      'quanto tempo.', 'tudo bem?', 'pode ficar.',
+      'não precisa ir a lugar nenhum.', 'o silêncio também é música.',
+    ];
+    const idlePoolMad = [
+      'não consegue dormir?', 'a madrugada faz isso.',
+      'você não é o único acordado.', 'horas assim passam devagar.', 'vai descansar.',
+    ];
+
+    const idleEl = document.getElementById('idle-msg');
+    let idleTimer, idleShowing = false;
+
+    function resetIdle() {
+      clearTimeout(idleTimer);
+      if (idleShowing) {
+        idleEl.classList.remove('show');
+        idleShowing = false;
+        setTimeout(() => { idleEl.textContent = ''; }, 1500);
+      }
+      idleTimer = setTimeout(showIdle, 30000);
+    }
+
+    function showIdle() {
+      const pool = document.body.classList.contains('madrugada') ? idlePoolMad : idlePool;
+      idleEl.textContent = pool[Math.floor(Math.random() * pool.length)];
+      idleEl.classList.add('show');
+      idleShowing = true;
+      setTimeout(() => {
+        idleEl.classList.remove('show');
+        idleShowing = false;
+        setTimeout(() => { idleEl.textContent = ''; idleTimer = setTimeout(showIdle, 45000); }, 1500);
+      }, 8000);
+    }
+
+    ['mousemove','scroll','keydown','touchstart','click'].forEach(e =>
+      document.addEventListener(e, resetIdle, { passive: true })
+    );
+    resetIdle();
+
+    // ── CLIMA ──
+    const atmoMsgs = {
+      rain:  ['chuva no cerrado.','o concreto molha igual.','chuva não para nada.'],
+      storm: ['tempestade chegando.','raio não avisa.','o céu virou.'],
+      hot:   ['calor seco de Goiás.','sol que racha o chão.','cerrado em chamas.'],
+      clear: ['céu limpo, mente pesada.','sol de Goiás batendo forte.'],
+      night: ['madrugada ainda acessa.','a cidade não dorme direito.'],
+      dawn:  ['amanhecendo em Goiânia.','entre a noite e o dia.'],
+      goias: ['você é daqui.','território conhecido.','goiano reconhece goiano.'],
+    };
+
+    function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+    function showAtmo(type) {
+      const msgs = atmoMsgs[type]; if (!msgs) return;
+      const el = document.getElementById('atmo-msg');
+      el.textContent = '// ' + rand(msgs);
+      setTimeout(() => el.classList.add('show'), 100);
+    }
+
+    function wDesc(code) {
+      if (code===0) return 'céu limpo';
+      if ([1,2].includes(code)) return 'parcialmente nublado';
+      if (code===3) return 'nublado';
+      if ([45,48].includes(code)) return 'neblina';
+      if ([51,53,55].includes(code)) return 'garoa';
+      if ([61,63,65].includes(code)) return 'chuva';
+      if ([80,81,82].includes(code)) return 'pancadas';
+      if ([95,96,99].includes(code)) return 'tempestade';
+      return 'variável';
+    }
+
+    function applyWeather(code, temp, isNight) {
+      const b = document.body;
+      if ([95,96,99].includes(code))                          { b.classList.add('weather-storm'); showAtmo('storm'); }
+      else if ([51,53,55,61,63,65,80,81,82].includes(code))  { b.classList.add('weather-rain');  showAtmo('rain');  }
+      else if (temp > 33)                                     { b.classList.add('weather-hot');   showAtmo('hot');   }
+      else if (isNight && !b.classList.contains('madrugada')) { showAtmo('night'); }
+      else if (!b.classList.contains('madrugada'))            { showAtmo('clear'); }
+
+      const w = document.getElementById('weather-display');
+      w.textContent = `${Math.round(temp)}°C — ${wDesc(code)}`;
+      w.classList.add('loaded');
+    }
+
+    async function initAtmosphere() {
+      if (!navigator.geolocation) return;
+      navigator.geolocation.getCurrentPosition(async pos => {
+        const { latitude: lat, longitude: lon } = pos.coords;
+
+        try {
+          const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,is_day&timezone=auto`);
+          const d = await r.json();
+          applyWeather(d.current.weather_code, d.current.temperature_2m, d.current.is_day === 0);
+        } catch(e) {}
+
+        try {
+          const g = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`, { headers: { 'Accept-Language': 'pt-BR' } });
+          const gd = await g.json();
+          const city  = gd?.address?.city || gd?.address?.town || '';
+          const state = gd?.address?.state || '';
+          if (city) {
+            const l = document.getElementById('location-display');
+            l.textContent = city.toLowerCase();
+            l.classList.add('loaded');
+          }
+          if (state.toLowerCase().includes('goiás') || state.toLowerCase().includes('goias')) {
+            document.body.classList.add('is-goias');
+            setTimeout(() => showAtmo('goias'), 5000);
+          }
+        } catch(e) {}
+
+      }, () => {
+        const h = new Date().getHours();
+        if (!document.body.classList.contains('madrugada')) {
+          showAtmo(h >= 5 && h < 7 ? 'dawn' : 'clear');
+        }
+      });
+    }
+
+    setTimeout(initAtmosphere, 1500);
+  </script>
+</body>
+</html>
